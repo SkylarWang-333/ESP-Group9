@@ -1,5 +1,3 @@
-
-
-setwd("https://github.com/AishahAlmubarak/Statistical-Programing-Group-9.git") ## comment out of submitted
-
-music_raw <- readLines("palestrina.txt")
+# Aishah ALmubarak   S2957708
+# Yizhen Ge          S
+# Ziyi Wang          S
