@@ -4,8 +4,13 @@
 
 
 #read file palestrina .txt
-setwd("C:/03 学习区/爱丁堡sds/extended statistical programming/Practical-1/ESP-Group9") ## comment out of submitted 
-music_raw <- readLines("C:/03 学习区/爱丁堡sds/extended statistical programming/Practical-1/Practical-1/palestrina.txt")
+setwd("/Users/aishamubarak/proj1-test") ## comment out of submitted 
 
+#loading data
+music_raw <- readLines("~/Downloads/Practical-1/palestrina.txt")
+
+#inspecting the data
 head(music_raw,n=20L)
 
+# preprocessing function
+preprocess <- function(music)
