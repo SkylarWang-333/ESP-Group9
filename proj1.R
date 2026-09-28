@@ -1,5 +1,4 @@
 # Aishah ALmubarak   S2957708
-# Yizhen Ge          S3027690fyf
 # Ziyi Wang          S2975970
 
 
