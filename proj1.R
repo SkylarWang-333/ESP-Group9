@@ -40,5 +40,11 @@ preprocess <- function(music){
 music_clean<- preprocess(music=music_raw)
 tail(music_clean, n = 10)
 
+## Q5
 
+# Create refrence for unique values
+notes <- unique(music_clean)
+tokens <- match(music_clean, notes)
 
+# verify lengths
+length(music_clean)==length(tokens)
