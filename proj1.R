@@ -6,12 +6,10 @@
 #loading data
 music_raw <- readLines("palestrina.txt")
 
-music_raw <- readLines("/Users/aishamubarak/Desktop/MSc/Semester 1/EStat_programming/Practical-1/palestrina.txt")
 #inspecting the data
 head(music_raw,n=20L)
 
 # preprocessing function
-preprocess <- function(music)
 preprocess <- function(music){
   # a) remove first 3 rows
   music <-(music[-(1:3)])
@@ -45,3 +43,34 @@ tokens <- match(music_clean, notes)
 
 # verify lengths
 length(music_clean)==length(tokens)
+
+##Q6
+
+make_matrix <- function(tokens, end, mlag = 4) {
+  
+  # Get the total number of tokens
+  n <- length(tokens)
+  
+  # Create an empty matrix for consecutive token sequences
+  M <- matrix(0,nrow = n - mlag, ncol = mlag + 1)
+  
+  # Fill each column with a shifted section of tokens
+  for (i in 1:(mlag + 1)) {
+    M[, i] <- tokens[i:(n - mlag + i - 1)]
+  }
+  
+  # Identify rows where || occurs before the final column
+  bad_rows <- apply(
+    M[, 1:mlag, drop = FALSE],
+    1,
+    function(x) any(x == end)
+  )
+  
+  # Remove sequences that cross between two pieces of music
+  M <- M[!bad_rows, , drop = FALSE]
+  
+  return(M)
+}
+
+M <- make_matrix(tokens = tokens, end = which(notes==" || "), mlag = 4)
+M
