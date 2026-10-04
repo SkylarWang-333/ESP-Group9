@@ -250,6 +250,8 @@ music_w1
 music_w2
 music_w3
 
+# All three weights run without error and produce a valid music string.
+
 #play music
 source("play_music.r")
 play(str_to_waveform(sim_music, bpm = 400))
