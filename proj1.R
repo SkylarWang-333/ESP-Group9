@@ -159,7 +159,7 @@ next_token
 notes[next_token]
 
 #Q8
-## Q8
+
 generate_music <- function(start, M, notes, w = NULL) {
   
   # Get the maximum lag from M
