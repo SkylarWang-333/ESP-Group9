@@ -122,7 +122,7 @@ next_note <- function(key, M, w = NULL) {
       u <- c(u, next_tokens)
       
       current_p <- rep(
-        w[k] / length(matches),
+        w[mc] / length(matches),
         length(matches)
       )
       
