@@ -1,6 +1,6 @@
 # Aishah ALmubarak   S2957708
 # Yizhen Ge          S3027690
-# Ziyi Wang          S2975970
+# Ziyi Wang          S2945970
 
 # getwd()
 
@@ -284,7 +284,11 @@ music_w3
 # The three generated music sequences are performed differently. The melody of w1 is rich and changeable, including different note time values and pauses. 
 # There are more pauses in w2, which sounds slow. 
 # The melody of w3 is complex and changeable, with more short notes and obvious changes in pitch. 
-# In general, the three different weights produce significantly different rhythms and melodies.
+# The prediction model uses the previous notes as lagged information to predict the next note.
+# The larger lag can capture a longer range of patterns while the smaller lag mainly reflects the local patterns between adjacent notes.
+# this will affect the repetition  and change of the generated music.
+# in the 3 examples, we can see different notes, pauses, and time values, which reflects different lad dependencied used by the model.
+
 #play music
 source("play_music.r")
 play(str_to_waveform(sim_music, bpm = 400))
