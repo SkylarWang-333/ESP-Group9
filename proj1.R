@@ -1,17 +1,30 @@
 # Aishah ALmubarak   S2957708
 # Yizhen Ge          S3027690
 # Ziyi Wang          S2975970
+<<<<<<< HEAD
 getwd()
 
 #loading data
 music_raw <- readLines("/Users/aishamubarak/Desktop/MSc/Semester 1/EStat_programming/Practical-1/palestrina.txt")
 
 ## Q4
+=======
+
+
+#loading data
+music_raw <- readLines("palestrina.txt")
+
+>>>>>>> b57279db9d7eb5a166b7fcce009eee0c2fe3669a
 #inspecting the data
 head(music_raw,n=20L)
 
 # preprocessing function
+<<<<<<< HEAD
 
+=======
+# Description: in this function we want to turn the raw text data into a vector of notes the model can use to predict.
+# inputs: text file
+>>>>>>> b57279db9d7eb5a166b7fcce009eee0c2fe3669a
 preprocess <- function(music){
   # a) remove first 3 rows
   music <-(music[-(1:3)])
@@ -39,7 +52,8 @@ tail(music_clean, n = 10)
 
 ## Q5
 
-# Create refrence for unique values
+# Create a dictionary for unique values, then create tokens to replace the each note with it's position in the dictionary.
+# because comparing numbers is faster than comparing strings(notes).
 notes <- unique(music_clean)
 tokens <- match(music_clean, notes)
 
@@ -47,7 +61,16 @@ tokens <- match(music_clean, notes)
 length(music_clean)==length(tokens)
 
 ##Q6
+<<<<<<< HEAD
 
+=======
+# Make matrix function
+# Description: Build the training matrix, arrange the data into n-mlag rows and mlag+1 columns. mlag is the maximum number of notes
+# model considers to predict the next note. if the row contains || in the middle we must remove it beacuse it marks the end of the piece 
+# so the notes that follow shouldn't be predicted.
+# inputs: tokens (the text data converted into numbers), end : || (what signifies end of piece), mlag: maximum number of notes to consider for prediction. 
+# output: M matrix
+>>>>>>> b57279db9d7eb5a166b7fcce009eee0c2fe3669a
 make_matrix <- function(tokens, end, mlag = 4) {
   
   # Get the total number of tokens
@@ -77,6 +100,7 @@ make_matrix <- function(tokens, end, mlag = 4) {
 M <- make_matrix(tokens = tokens, end = which(notes==" || "), mlag = 4)
 M
 
+<<<<<<< HEAD
 
 ## Q7
 
@@ -149,3 +173,185 @@ next_note <- function(key, M, w=rep(1, ncol(M)-1 )) {
   
 generate_music(start, M, w, notes)
 
+=======
+##Q7
+## Q7
+## Q7
+next_note <- function(key, M, w = NULL) {
+  
+  # Get the maximum lag from M
+  mlag <- ncol(M) - 1
+  
+  # Set default weights to all 1s
+  if (is.null(w)) {
+    w <- rep(1, mlag)
+  }
+  
+  # If key is too long, keep only the most recent tokens
+  if (length(key) > mlag) {
+    key <- tail(key, mlag)
+  }
+  
+  # Create empty vectors for possible next tokens and their weights
+  u <- c()
+  p <- c()
+  
+  # Check the key and its reduced versions
+  for (k in length(key):1) {
+    
+    # Keep the last k tokens
+    current_key <- tail(key, k)
+    
+    # Find the first column of M to be matched
+    mc <- mlag - k + 1
+    
+    # Find differences between current_key and each row of M
+    ii <- colSums(
+      !(t(M[, mc:mlag, drop = FALSE]) == current_key)
+    )
+    
+    # Find rows that completely match
+    matches <- which(ii == 0)
+    
+    # Collect possible next tokens and their weights
+    if (length(matches) > 0) {
+      
+      next_tokens <- M[matches, mlag + 1]
+      
+      u <- c(u, next_tokens)
+      
+      current_p <- rep(
+        w[mc] / length(matches),
+        length(matches)
+      )
+      
+      p <- c(p, current_p)
+    }
+  }
+  
+  # No usable matches
+  if (length(u) == 0 || sum(p) == 0) {
+    
+    next_token <- sample(M[, mlag + 1], size = 1)
+    
+    # Only one possible next token
+  } else if (length(u) == 1) {
+    
+    next_token <- u[1]
+    
+    # Two or more possible next tokens
+  } else {
+    
+    next_token <- sample(u, size = 1, prob = p)
+  }
+  
+  return(next_token)
+}
+  
+
+
+#test
+test_key <- M[1, 1:4]
+test_key
+next_token=next_note(key=test_key,M=M)
+next_token
+notes[next_token]
+
+#Q8
+
+generate_music <- function(start, M, notes, w = NULL) {
+  
+  # Get the maximum lag from M
+  mlag <- ncol(M) - 1
+  
+  # Set default weights to all 1s
+  if (is.null(w)) {
+    w <- rep(1, mlag)
+  }
+  
+  # Get the token IDs for the bar-line and double bar-line
+  bar_token <- which(notes == "|")
+  end_token <- which(notes == "||")
+  
+  # Start the generated sequence with the starting token
+  generated <- start
+  
+  # Keep generating notes until a stopping condition is met
+  while (TRUE) {
+    
+    # Generate the next token using the sequence generated so far
+    new_token <- next_note(
+      key = generated,
+      M = M,
+      w = w
+    )
+    
+    # Add the new token to the generated sequence
+    generated <- c(generated, new_token)
+    
+    # Stop if the double bar-line has been generated
+    if (new_token == end_token) {
+      break
+    }
+    
+    # Stop if eight bar-lines have been generated
+    if (sum(generated == bar_token) >= 8) {
+      break
+    }
+    
+    # Stop if the sequence has reached 200 tokens
+    if (length(generated) >= 200) {
+      break
+    }
+  }
+  
+  # Convert token IDs back to note names
+  generated_notes <- notes[generated]
+  
+  # Join all notes into one character string
+  music_string <- paste(generated_notes, collapse = " ")
+  
+  return(music_string)
+}
+
+#test
+sim_music <- generate_music(
+  start = 20,
+  M = M,
+  notes = notes,
+  w = c(1, 1, 1, 1)
+)
+
+sim_music
+
+music_w1 <- generate_music(
+  start = 20,
+  M = M,
+  notes = notes,
+  w = c(1, 1, 1, 1)
+)
+
+music_w2 <- generate_music(
+  start = 20,
+  M = M,
+  notes = notes,
+  w = c(1, 0, 0, 0)
+)
+
+music_w3 <- generate_music(
+  start = 20,
+  M = M,
+  notes = notes,
+  w = c(0, 0, 0, 1)
+)
+
+music_w1
+music_w2
+music_w3
+
+# All three weights run without error and produce a valid music string.
+
+#play music
+source("play_music.r")
+play(str_to_waveform(sim_music, bpm = 400))
+>>>>>>> b57279db9d7eb5a166b7fcce009eee0c2fe3669a
