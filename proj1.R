@@ -289,8 +289,8 @@ music_w3
 # in the 3 examples, we can see different notes, pauses, and time values, which reflects different lad dependencied used by the model.
 
 #play music
-source("play_music.r")
-play(str_to_waveform(sim_music, bpm = 400))
+#source("play_music.r")
+#play(str_to_waveform(sim_music, bpm = 400))
 
 # Team Member Contributions
 # Aishah ALmubarak: Completed Questions 4–5 and provided detailed comments and descriptions explaining the code.
