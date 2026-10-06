@@ -281,9 +281,10 @@ music_w2
 music_w3
 
 # All three weights run without error and produce a valid music string.
-#The results of w1 sound the richest and changeable. 
-#W2 is the simplest, relying only on the previous note, with more repetitions and fewer interruptions.
-#w3 has more interruptions.
+# The three generated music sequences are performed differently. The melody of w1 is rich and changeable, including different note time values and pauses. 
+# There are more pauses in w2, which sounds slow. 
+# The melody of w3 is complex and changeable, with more short notes and obvious changes in pitch. 
+# In general, the three different weights produce significantly different rhythms and melodies.
 #play music
 source("play_music.r")
 play(str_to_waveform(sim_music, bpm = 400))
