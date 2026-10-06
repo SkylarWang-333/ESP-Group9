@@ -1,6 +1,6 @@
 # Aishah ALmubarak   S2957708
 # Yizhen Ge          S3027690
-# Ziyi Wang          S2975970
+# Ziyi Wang          S2945970
 
 # getwd()
 
@@ -83,7 +83,7 @@ make_matrix <- function(tokens, end, mlag = 4) {
     M[, i] <- tokens[i:(n - mlag + i - 1)]
   }
   
-  # Identify rows where || occurs before the final column
+  # Identify rows where || occur before the final column
   bad_rows <- apply(
     M[, 1:mlag, drop = FALSE],
     1,
@@ -97,7 +97,6 @@ make_matrix <- function(tokens, end, mlag = 4) {
 }
 
 M <- make_matrix(tokens = tokens, end = which(notes=="||"), mlag = 4)
-M
 
 
 ## Q7
@@ -285,6 +284,10 @@ music_w3
 # There are more pauses in w2, which sounds slow. 
 # The melody of w3 is complex and changeable, with more short notes and obvious changes in pitch. 
 # In general, the three different weights produce significantly different rhythms and melodies.
-#play music
-source("play_music.r")
-play(str_to_waveform(sim_music, bpm = 400))
+
+# Team Member Contributions
+# Aishah ALmubarak: Completed Questions 4–5 and provided detailed comments and descriptions explaining the code.
+# Ziyi Wang: Completed Questions 6–8 and implemented the functions for constructing the model and generating music.
+# Yizhen Ge: Independently completed the task for cross-checking, and analysed the results under the three different weight settings.
+
+# AI situation: We used ChatGPT to help us understand basic R syntax and how to implement our ideas in R. We first worked out the logic of the code and explained it to ChatGPT, then asked it to show us how the relevant R functions and syntax could be used. We wrote the code ourselves based on this guidance. When our code produced errors, we provided the error messages to ChatGPT and asked it to explain the causes and help us debug the code. This helped us better understand how to translate programming logic into R code and how to identify and fix errors.
