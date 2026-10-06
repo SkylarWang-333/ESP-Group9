@@ -38,6 +38,8 @@ preprocess <- function(music){
   notlast_line <- setdiff(seq_along(music), c(islast_line, blank))
   music[notlast_line] <- paste0(music[notlast_line]," |")
   
+  # removing blank lines
+  music <- music[music != " "]
   # splitting the measures into notes on " "
   music <- strsplit(music," ")
   music <- unlist(music)
@@ -94,14 +96,14 @@ make_matrix <- function(tokens, end, mlag = 4) {
   return(M)
 }
 
-M <- make_matrix(tokens = tokens, end = which(notes==" || "), mlag = 4)
+M <- make_matrix(tokens = tokens, end = which(notes=="||"), mlag = 4)
 M
 
 
 ## Q7
 # Description: in this function we are predicting the next note using our M matrix. The model finds
 # rows of M that match the key, and the shorter versions of the key and assigns the matching notes their probability.
-# if there are no matches it returns a random note.
+# If there are no usable matches, sample a token from the final column of M.
 # if the key is too long we use the last m-lag notes.
 # inputs: key, a vector containing a token sequence for which the next note is to be generated,
 # M, the matrix produced by make_matrix, and w a vector of mixture weights
@@ -279,7 +281,9 @@ music_w2
 music_w3
 
 # All three weights run without error and produce a valid music string.
-
+#The results of w1 sound the richest and changeable. 
+#W2 is the simplest, relying only on the previous note, with more repetitions and fewer interruptions.
+#w3 has more interruptions.
 #play music
 source("play_music.r")
 play(str_to_waveform(sim_music, bpm = 400))
