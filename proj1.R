@@ -9,10 +9,6 @@
 # uses it to simulate new music in the style of Giovanni Palestrina. The
 # training data (palestrina.txt) is used to predict the next musical note.
 
-
-#loading data
-music_raw <- readLines("/Users/aishamubarak/Desktop/MSc/Semester 1/EStat_programming/Practical-1/palestrina.txt")
-
 ## Q4
 #loading data
 music_raw <- readLines("palestrina.txt")
