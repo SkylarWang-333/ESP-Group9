@@ -2,12 +2,18 @@
 # Yizhen Ge          S3027690
 # Ziyi Wang          S2945970
 
-# getwd()
+# Team Member Contributions
+# Aishah ALmubarak: Completed Questions 4–5 and provided detailed comments and descriptions explaining the code.
+# Ziyi Wang: Completed Questions 6–8 and implemented the functions for constructing the model and generating music.
+# Yizhen Ge: Independently completed the task for cross-checking, and analysed the results under the three different weight settings.
+
 
 # Overview:
 # This file builds a simple Markov prediction model for music and
 # uses it to simulate new music in the style of Giovanni Palestrina. The
 # training data (palestrina.txt) is used to predict the next musical note.
+
+# getwd()
 
 ## Q4
 #loading data
@@ -292,11 +298,6 @@ music_w3
 #play music
 #source("play_music.r")
 #play(str_to_waveform(sim_music, bpm = 400))
-
-# Team Member Contributions
-# Aishah ALmubarak: Completed Questions 4–5 and provided detailed comments and descriptions explaining the code.
-# Ziyi Wang: Completed Questions 6–8 and implemented the functions for constructing the model and generating music.
-# Yizhen Ge: Independently completed the task for cross-checking, and analysed the results under the three different weight settings.
 
 # AI situation:
 # We used ChatGPT to help us understand basic R syntax and how to implement our ideas in R. We first worked out the logic of the code and
