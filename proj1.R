@@ -297,4 +297,8 @@ music_w3
 # Ziyi Wang: Completed Questions 6–8 and implemented the functions for constructing the model and generating music.
 # Yizhen Ge: Independently completed the task for cross-checking, and analysed the results under the three different weight settings.
 
-# AI situation: We used ChatGPT to help us understand basic R syntax and how to implement our ideas in R. We first worked out the logic of the code and explained it to ChatGPT, then asked it to show us how the relevant R functions and syntax could be used. We wrote the code ourselves based on this guidance. When our code produced errors, we provided the error messages to ChatGPT and asked it to explain the causes and help us debug the code. This helped us better understand how to translate programming logic into R code and how to identify and fix errors.
+# AI situation:
+# We used ChatGPT to help us understand basic R syntax and how to implement our ideas in R. We first worked out the logic of the code and
+# explained it to ChatGPT, then asked it to show us how the relevant R functions and syntax could be used. We wrote the code ourselves based on this guidance.
+# When our code produced errors, we provided the error messages to ChatGPT and asked it to explain the causes and help us debug the code. This helped us better understand 
+# how to translate programming logic into R code and how to identify and fix errors.
