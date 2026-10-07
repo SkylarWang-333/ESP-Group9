@@ -1,6 +1,6 @@
 # Aishah ALmubarak   S2957708
 # Yizhen Ge          S3027690
-# Ziyi Wang          S2975970
+# Ziyi Wang          S2945970
 
 # getwd()
 
@@ -8,10 +8,6 @@
 # This file builds a simple Markov prediction model for music and
 # uses it to simulate new music in the style of Giovanni Palestrina. The
 # training data (palestrina.txt) is used to predict the next musical note.
-
-
-#loading data
-music_raw <- readLines("/Users/aishamubarak/Desktop/MSc/Semester 1/EStat_programming/Practical-1/palestrina.txt")
 
 ## Q4
 #loading data
@@ -42,6 +38,8 @@ preprocess <- function(music){
   notlast_line <- setdiff(seq_along(music), c(islast_line, blank))
   music[notlast_line] <- paste0(music[notlast_line]," |")
   
+  # removing blank lines
+  music <- music[music != " "]
   # splitting the measures into notes on " "
   music <- strsplit(music," ")
   music <- unlist(music)
@@ -85,7 +83,7 @@ make_matrix <- function(tokens, end, mlag = 4) {
     M[, i] <- tokens[i:(n - mlag + i - 1)]
   }
   
-  # Identify rows where || occurs before the final column
+  # Identify rows where || occur before the final column
   bad_rows <- apply(
     M[, 1:mlag, drop = FALSE],
     1,
@@ -98,85 +96,84 @@ make_matrix <- function(tokens, end, mlag = 4) {
   return(M)
 }
 
-M <- make_matrix(tokens = tokens, end = which(notes==" || "), mlag = 4)
-M
+M <- make_matrix(tokens = tokens, end = which(notes=="||"), mlag = 4)
 
 
 ## Q7
 # Description: in this function we are predicting the next note using our M matrix. The model finds
 # rows of M that match the key, and the shorter versions of the key and assigns the matching notes their probability.
-# if there are no matches it returns a random note.
+# If there are no usable matches, sample a token from the final column of M.
 # if the key is too long we use the last m-lag notes.
 # inputs: key, a vector containing a token sequence for which the next note is to be generated,
 # M, the matrix produced by make_matrix, and w a vector of mixture weights
 # outputs: next note token.
 
 next_note <- function(key, M, w=rep(1, ncol(M)-1 )) {
-    
-    # Get the maximum lag from M
-    mlag <- ncol(M) - 1
-    
-    # If key is too long, keep only the most recent tokens
-    if (length(key) > mlag) {
-      key <- tail(key, mlag)
-    }
-    
-    # Create empty vectors for possible next tokens and their weights
-    u <- c()
-    p <- c()
-    
-    # Check the key and its reduced versions
-    for (k in length(key):1) {
-      
-      # Keep the last k tokens
-      current_key <- tail(key, k)
-      
-      # Find the first column of M to be matched
-      mc <- mlag - k + 1
-      
-      # Find differences between current_key and each row of M
-      ii <- colSums(
-        !(t(M[, mc:mlag, drop = FALSE]) == current_key)
-      )
-      
-      # Find rows that completely match
-      matches <- which(ii == 0)
-      
-      # Collect possible next tokens and their weights
-      if (length(matches) > 0) {
-        
-        next_tokens <- M[matches, mlag + 1]
-        
-        u <- c(u, next_tokens)
-        
-        current_p <- rep(
-          w[mc] / length(matches),
-          length(matches)
-        )
-        
-        p <- c(p, current_p)
-      }
-    }
-    
-    # No usable matches
-    if (length(u) == 0 || sum(p) == 0) {
-      
-      next_token <- sample(M[, mlag + 1], size = 1)
-      
-      # Only one possible next token
-    } else if (length(u) == 1) {
-      
-      next_token <- u[1]
-      
-      # Two or more possible next tokens
-    } else {
-      
-      next_token <- sample(u, size = 1, prob = p)
-    }
-    
-    return(next_token)
+  
+  # Get the maximum lag from M
+  mlag <- ncol(M) - 1
+  
+  # If key is too long, keep only the most recent tokens
+  if (length(key) > mlag) {
+    key <- tail(key, mlag)
   }
   
+  # Create empty vectors for possible next tokens and their weights
+  u <- c()
+  p <- c()
+  
+  # Check the key and its reduced versions
+  for (k in length(key):1) {
+    
+    # Keep the last k tokens
+    current_key <- tail(key, k)
+    
+    # Find the first column of M to be matched
+    mc <- mlag - k + 1
+    
+    # Find differences between current_key and each row of M
+    ii <- colSums(
+      !(t(M[, mc:mlag, drop = FALSE]) == current_key)
+    )
+    
+    # Find rows that completely match
+    matches <- which(ii == 0)
+    
+    # Collect possible next tokens and their weights
+    if (length(matches) > 0) {
+      
+      next_tokens <- M[matches, mlag + 1]
+      
+      u <- c(u, next_tokens)
+      
+      current_p <- rep(
+        w[mc] / length(matches),
+        length(matches)
+      )
+      
+      p <- c(p, current_p)
+    }
+  }
+  
+  # No usable matches
+  if (length(u) == 0 || sum(p) == 0) {
+    
+    next_token <- sample(M[, mlag + 1], size = 1)
+    
+    # Only one possible next token
+  } else if (length(u) == 1) {
+    
+    next_token <- u[1]
+    
+    # Two or more possible next tokens
+  } else {
+    
+    next_token <- sample(u, size = 1, prob = p)
+  }
+  
+  return(next_token)
+}
+
 
 #test
 test_key <- M[1, 1:4]
@@ -282,9 +279,27 @@ music_w1
 music_w2
 music_w3
 
+#comment:
 # All three weights run without error and produce a valid music string.
+# The three generated music sequences are performed differently. The melody of w1 is rich and changeable, including different note time values and pauses. 
+# There are more pauses in w2, which sounds slow. 
+# The melody of w3 is complex and changeable, with more short notes and obvious changes in pitch. 
+# The prediction model uses the previous notes as lagged information to predict the next note.
+# The larger lag can capture a longer range of patterns while the smaller lag mainly reflects the local patterns between adjacent notes.
+# this will affect the repetition  and change of the generated music.
+# in the 3 examples, we can see different notes, pauses, and time values, which reflects different lad dependencied used by the model.
 
 #play music
-source("play_music.r")
-play(str_to_waveform(sim_music, bpm = 400))
+#source("play_music.r")
+#play(str_to_waveform(sim_music, bpm = 400))
 
+# Team Member Contributions
+# Aishah ALmubarak: Completed Questions 4–5 and provided detailed comments and descriptions explaining the code.
+# Ziyi Wang: Completed Questions 6–8 and implemented the functions for constructing the model and generating music.
+# Yizhen Ge: Independently completed the task for cross-checking, and analysed the results under the three different weight settings.
+
+# AI situation:
+# We used ChatGPT to help us understand basic R syntax and how to implement our ideas in R. We first worked out the logic of the code and
+# explained it to ChatGPT, then asked it to show us how the relevant R functions and syntax could be used. We wrote the code ourselves based on this guidance.
+# When our code produced errors, we provided the error messages to ChatGPT and asked it to explain the causes and help us debug the code. This helped us better understand 
+# how to translate programming logic into R code and how to identify and fix errors.
