@@ -293,7 +293,7 @@ music_w3
 # The prediction model uses the previous notes as lagged information to predict the next note.
 # The larger lag can capture a longer range of patterns while the smaller lag mainly reflects the local patterns between adjacent notes.
 # this will affect the repetition  and change of the generated music.
-# in the 3 examples, we can see different notes, pauses, and time values, which reflects different lad dependencied used by the model.
+# in the 3 examples, we can see different notes, pauses, and time values, which reflects different lag dependencies used by the model.
 
 #play music
 #source("play_music.r")
