@@ -287,6 +287,10 @@ music_w3
 
 #comment:
 # All three weights run without error and produce a valid music string.
+# Since the w vector is changing we see the generated music preforms differently per lag w:
+# w1: all lags (1–4) mixed equally
+# w2: only the 4-note context
+# w3: only the previous note
 # The three generated music sequences are performed differently. The melody of w1 is rich and changeable, including different note time values and pauses. 
 # There are more pauses in w2, which sounds slow. 
 # The melody of w3 is complex and changeable, with more short notes and obvious changes in pitch. 
@@ -294,6 +298,7 @@ music_w3
 # The larger lag can capture a longer range of patterns while the smaller lag mainly reflects the local patterns between adjacent notes.
 # this will affect the repetition  and change of the generated music.
 # in the 3 examples, we can see different notes, pauses, and time values, which reflects different lag dependencies used by the model.
+
 
 #play music
 #source("play_music.r")
