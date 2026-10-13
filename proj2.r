@@ -6,7 +6,6 @@
 #  With this code we want to simulate throwing a coin with possibility p.
 #  Two players each pick a pattern of k outcomes, and the coin is tossed
 #  until one of the patterns appears; that player wins.
-<<<<<<< HEAD
 
 firsthit <- function(x,a){
   k <- length(a)
@@ -23,5 +22,4 @@ firsthit <- function(x,a){
   return(NA)
 }
 
-=======
->>>>>>> c05d033e5f9b9f2c6bda5d74ba2ae3ff3683fbb8
+
