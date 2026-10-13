@@ -9,6 +9,7 @@
 
 
 # Q1
+
 firsthit <- function(x,a){
   k <- length(a)
   n <- length(x)
@@ -35,17 +36,22 @@ duel <- function(a,b, p=0.5){
     
     match_a=firsthit(x,a)
     if (!is.na(match_a))
-     return(c(1,match_a,x))
+     return(c(1,match_a))
     
     match_b=firsthit(x,b)
     if (!is.na(match_b))
-     return(c(0,match_b,x))
+     return(c(0,match_b))
 
   }
 }
 
-a=c(0,0,0)
-b=c(1,1,1)      
-     
-duel(a,b)  
-       
+# Q3
+
+pwin <- function(a,b,p=0.5,nreps=10000){
+  x=c()
+  for (i in 1:nreps){
+    winner=duel(a,b,p)
+  x=c(x,winner[1])
+  }
+  return(mean(x))  
+}
