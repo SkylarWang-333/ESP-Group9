@@ -193,10 +193,10 @@ cat("Q5(c): Expected waiting times\n")
 patterns <- matrix(0, nrow = 8, ncol = 3)
 
 for (i in 0:7) {
-  for (j in 1:k) {
-    patterns[i+1, j] <- (i %/% 2^(k-j)) %% 2
+  for (j in 1:3) {
+    patterns[i+1, j] <- (i %/% 2^(3-j)) %% 2
   }
-}
+} 
 for (i in 1:8) {
   cat(i, ewait(patterns[i, ], p = 0.5), "\n")
 }
