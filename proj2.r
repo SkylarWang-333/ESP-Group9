@@ -9,7 +9,8 @@
 
 
 # Q1
-
+# function returns position at which pattern a first appears in toss stream x
+# the last position of the first matching k-window, or NA if we have no match.
 firsthit <- function(x,a){
   k <- length(a)
   n <- length(x)
@@ -25,35 +26,59 @@ firsthit <- function(x,a){
   return(NA)
 }
 
-#Q2
+# Shared function for duel and pwin.
+# Runs nreps duels between patterns a and b at once, each row of X is a duel.
+# Tosses are added in blocks of 20, only to rows where neither pattern has appeared.
+# Returns a matrix with 2 columns winner (1 = a, 0 = b) and tosses for the position.
 
-duel <- function(a,b, p=0.5){
-  x=c()
-  
-  while (TRUE){
-    nextnum=sample(x = c(1,0), size = 1, replace = TRUE, prob = c(p,1-p))
-    x=c(x,nextnum)
-    
-    match_a=firsthit(x,a)
-    if (!is.na(match_a))
-     return(c(1,match_a))
-    
-    match_b=firsthit(x,b)
-    if (!is.na(match_b))
-     return(c(0,match_b))
+sim_duels <- function(a, b, p, nreps) {
+  k      <- length(a)
+  block  <- 20
+  winner <- rep(NA, nreps)
+  tosses <- rep(NA, nreps)
+  X      <- matrix(0, nreps, 0)                  
 
+  while (any(is.na(winner))) {                   
+    # new block: random tosses for unfinished duels, zeros for finished ones
+    undecided <- is.na(winner)
+    new <- matrix(0, nreps, block)
+    new[undecided, ] <- rbinom(sum(undecided) * block, 1, p)
+    X <- cbind(X, new)
+
+    # check only windows ending in the new block
+    for (m in max(k, ncol(X) - block + 1):ncol(X)) {
+      hitA <- is.na(winner)
+      hitB <- is.na(winner)
+      for (j in 1:k) {
+        hitA <- hitA & X[, m - k + j] == a[j]
+        hitB <- hitB & X[, m - k + j] == b[j]
+      }
+      winner[hitA] <- 1; tosses[hitA] <- m
+      winner[hitB] <- 0; tosses[hitB] <- m
+    }
   }
+  cbind(winner = winner, tosses = tosses)
 }
 
-# Q3
+#Q2
+# simulates one duel between patterns a and b on a shared coin stream.
+# Uses sim_duels with one stream of tosses.
+# Returns c(winner, tosses): winner 1 for a 0 if b, and the number of tosses the duel took.
 
-pwin <- function(a,b,p=0.5,nreps=10000){
-  x=c()
-  for (i in 1:nreps){
-    winner=duel(a,b,p)
-  x=c(x,winner[1])
-  }
-  return(mean(x))  
+duel <- function(a, b, p = 0.5) {
+  results <- sim_duels(a, b, p, nreps = 1)   # table with one row
+  one_duel <- results[1, ]                   # take that row
+  return(one_duel)
+}
+
+#Q3
+# returns the estimated probability that a appears before b
+# the proportion of nreps duels won by a.
+
+pwin <- function(a, b, p = 0.5, nreps = 10000) {
+  results <- sim_duels(a, b, p, nreps)       # table: one row per duel
+  wins    <- results[, "winner"]             # winner column: 1s and 0s
+  return(mean(wins))                         # proportion of 1s
 }
 
 #Q4 writing function ewait(a,p=0.5)
@@ -205,3 +230,5 @@ for (i in 1:8) {
 #result:0.775 which is clearly above 0.5
 #Both patterns compete on the same sequence of tosses, so their
 #occurrences are dependent rather than independent.
+
+
