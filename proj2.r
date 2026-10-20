@@ -9,8 +9,8 @@
 
 
 # Q1
-# function returns position at which pattern a first appears in toss stream x
-# the last position of the first matching k-window, or NA if we have no match.
+# function returns position at which pattern a first appears in toss stream x,
+# returns the last position of the first matching k-window, or NA if we have no match.
 firsthit <- function(x,a){
   k <- length(a)
   n <- length(x)
@@ -28,8 +28,8 @@ firsthit <- function(x,a){
 
 # Shared function for duel and pwin.
 # Runs nreps duels between patterns a and b at once, each row of X is a duel.
-# Tosses are added in blocks of 20, only to rows where neither pattern has appeared.
-# Returns a matrix with 2 columns winner (1 = a, 0 = b) and tosses for the position.
+# Tosses are added in blocks of 20, only to rows where neither pattern has appeared yet.
+# Returns a matrix with 2 columns winner (1 = a, 0 = b) and tosses for the position of the win.
 
 sim_duels <- function(a, b, p, nreps) {
   k      <- length(a)
@@ -72,7 +72,7 @@ duel <- function(a, b, p = 0.5) {
 }
 
 #Q3
-# returns the estimated probability that a appears before b
+# returns the estimated probability that pattern a appears before b
 # the proportion of nreps duels won by a.
 
 pwin <- function(a, b, p = 0.5, nreps = 10000) {
