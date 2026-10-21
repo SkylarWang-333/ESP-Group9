@@ -232,3 +232,131 @@ for (i in 1:8) {
 #occurrences are dependent rather than independent.
 
 
+
+#Q6
+#show the distribution of duel lengths and the variability of win probability estimates.
+
+#compare patterns 100 and 001, which have the same expected waiting time.
+#simulate 10000 duels and record how many tosses each duel takes.
+results <- sim_duels(c(1,0,0), c(0,0,1), 0.5, 10000)
+duel_times <- results[, "tosses"]
+
+#plot the distribution of duel lengths and mark the median.
+freq <- table(duel_times)
+prob <- as.numeric(freq) / sum(freq)
+times <- as.numeric(names(freq))
+med <- median(duel_times)
+
+plot(times, prob, type = "h", lwd = 2,
+   xlab = "Number of tosses", ylab = "Proportion of duels",
+   main = "Distribution of duel lengths")
+abline(v = med, col = "red", lty = 2)
+text(med, max(prob) * 0.9, paste("Median =", med), pos = 4)
+
+cat("Q6: Duel lengths\n")
+cat("Mean:", mean(duel_times), "Median:", med, "\n")
+#according to the graph
+#the distribution is right-skewed, with most duels ending after a few tosses.
+#the median is 5, while the mean is about 6.58 due to some longer duels.
+
+
+#repeat pwin 50 times and see how the estimated win probability changes.
+#use the best reply to 111 found in Q5(a)
+best <- which.max(M[, 8])
+a <- patterns[best, ]
+b <- c(1,1,1)
+
+estimates <- replicate(50, pwin(a, b, p = 0.5, nreps = 2000))
+ref <- mean(estimates)
+
+#plot the estimates and their mean as a reference.
+plot(estimates, type = "b", pch = 16,
+     xlab = "Simulation run", ylab = "Estimated win probability",
+     main = "Variability of win probability estimates")
+abline(h = ref, col = "red", lty = 2)
+text(25, ref, paste("Mean =", round(ref, 3)), pos = 3)
+
+cat("Q6: Win probability estimates\n")
+cat("Best reply to 111:", paste(a, collapse = ""), "\n")
+cat("Mean:", round(ref, 4), "\n")
+cat("SD:", round(sd(estimates), 4), "\n")
+cat("Range:", round(range(estimates), 4), "\n")
+#the best reply to 111 is 011
+#the 50 estimates are centred around 0.874, with a standard deviation of 0.0082.
+#the small variation suggests that the estimated win probability is fairly stable.
+
+
+
+
+# Q7
+#investigate how coin bias changes the best replies and non-transitive cycles
+
+for (p in c(0.25, 0.7)) {
+  M_bias <- pmat(k = 3, p = p, nreps = 10000)
+  
+  cat("\nQ7: p =", p, "\n")
+  cat("Pattern  Best reply  Win probability\n")
+  
+#find the pattern with the highest probability of beating each opponent
+for (j in 1:8) {
+  best <- which.max(M_bias[, j])
+  cat(paste(patterns[j, ], collapse = ""),
+      paste(patterns[best, ], collapse = ""),
+      round(M_bias[best, j], 4), "\n")
+}
+  
+#search for a cycle where every pattern beats the next with probability above 0.55
+wins <- M_bias > 0.55
+wins[is.na(wins)] <- FALSE
+found <- FALSE
+  
+#check three-pattern cycles first
+for (i in 1:8) {
+  for (j in 1:8) {
+  for (h in 1:8) {
+    if (!found && length(unique(c(i,j,h))) == 3 && wins[i,j] && wins[j,h] && wins[h,i]) {
+      cycle <- c(i,j,h,i)
+      found <- TRUE
+  }
+  }
+  }
+}
+  
+#if no three-pattern cycle is found, check four-pattern cycles
+if (!found) {
+  for (i in 1:8) {
+  for (j in 1:8) {
+  for (h in 1:8) {
+  for (l in 1:8) {
+    if (!found && length(unique(c(i,j,h,l))) == 4 && wins[i,j] && wins[j,h] &&  wins[h,l] && wins[l,i]) {
+     cycle <- c(i,j,h,l,i)
+     found <- TRUE
+  }
+  }
+  }
+  }
+  }
+}
+  
+#print the first cycle found and the probability of each win
+if (found) {
+  cat("Non-transitive cycle:\n")
+  cat(paste(cycle, collapse = " -> "), "\n")
+    
+for (j in 1:(length(cycle)-1)) {
+  cat(paste(patterns[cycle[j], ], collapse = ""),"beats",
+      paste(patterns[cycle[j+1], ], collapse = ""),"with probability",
+      round(M_bias[cycle[j], cycle[j+1]], 4), "\n")
+  }
+  } else {
+    cat("No cycle of length 3 or 4 found above 0.55.\n")
+  }
+}
+#we can see that coin bias changes the best replies and their win probabilities.
+#at p=0.25 and p=0.7, three-pattern non-transitive cycles were found.
+#the patterns in these cycles differ, showing that non-transitivity remains under coin bias.
+
+#summary
+#patterns with the same expected waiting time can have very different win probabilities.
+#the patterns compete on the same coin stream, so their first-hit times are dependent.
+#therefore, ranking patterns by their isolated waiting times can be misleading.
