@@ -2,6 +2,11 @@
 # Yizhen Ge          S3027690
 # Ziyi Wang          S2945970
 
+# Team Member Contributions
+# Aishah ALmubarak   Q1-3
+# Yizhen Ge          Q4-5
+# Ziyi Wang          Q6-7
+
 # Purpose of this code:
 #  With this code we want to simulate throwing a coin with probability p.
 #  Two players each pick a pattern of k outcomes and the coin is tossed,
@@ -81,8 +86,9 @@ pwin <- function(a, b, p = 0.5, nreps = 10000) {
   return(mean(wins))                         # proportion of 1s
 }
 
-#Q4 writing function ewait(a,p=0.5)
-
+#Q4 and Q5: function definitions
+ 
+  #Q4 writing function ewait(a,p=0.5)
 ewait <- function(a,p=0.5){
   k <- length(a)
   expected_wait <- 0
@@ -97,9 +103,7 @@ ewait <- function(a,p=0.5){
   return(expected_wait)
 }
 
-# Monte Carlo estimation
-
-
+  # Monte Carlo estimation
 mc_ewait <- function(a,p=0.5,nreps=10000){
   
   waits <- replicate(nreps,{
@@ -115,21 +119,7 @@ mc_ewait <- function(a,p=0.5,nreps=10000){
   return(mean(waits))
 }
 
-# Test different patterns, including a biased coin (p = 0.7).
-
-cat("Pattern 11, p = 0.5:\n")
-cat("Exact:", ewait(c(1,1), p=0.5),
-    "Monte Carlo:", mc_ewait(c(1,1), p=0.5), "\n")
-
-cat("Pattern 10, p = 0.7:\n")
-cat("Exact:", ewait(c(1,0), p=0.7),
-    "Monte Carlo:", mc_ewait(c(1,0), p=0.7), "\n")
-
-cat("Pattern 101, p = 0.7:\n")
-cat("Exact:", ewait(c(1,0,1), p=0.7),
-    "Monte Carlo:", mc_ewait(c(1,0,1), p=0.7), "\n")
-
-#Q5 writing function pmat(k,p=0.5,nrep=10000)
+  #Q5 writing function pmat(k,p=0.5,nrep=10000)
 pmat <- function(k, p = 0.5, nreps = 10000){
   n_patterns <- 2^k
   # Generate all binary patterns
@@ -159,6 +149,24 @@ pmat <- function(k, p = 0.5, nreps = 10000){
   return(M)
 }
 
+
+#Q4: Monte Carlo verification
+# Test different patterns, including a biased coin (p = 0.7).
+
+cat("Pattern 11, p = 0.5:\n")
+cat("Exact:", ewait(c(1,1), p=0.5),
+    "Monte Carlo:", mc_ewait(c(1,1), p=0.5), "\n")
+
+cat("Pattern 10, p = 0.7:\n")
+cat("Exact:", ewait(c(1,0), p=0.7),
+    "Monte Carlo:", mc_ewait(c(1,0), p=0.7), "\n")
+
+cat("Pattern 101, p = 0.7:\n")
+cat("Exact:", ewait(c(1,0,1), p=0.7),
+    "Monte Carlo:", mc_ewait(c(1,0,1), p=0.7), "\n")
+
+
+
 #Q5(a): Best reply for each pattern
 cat("Q5(a):Pattern index  Best reply index  Win probability\n")
 M <- pmat(k = 3, p = 0.5, nreps = 10000)
@@ -185,6 +193,7 @@ for (i in 1:nrow(pairs)) {
 #find an explicit nontransitive cycle
 #use 0.55 as a threshold for identifying clear wins.
 wins <- M > 0.55
+#evenly matched pairs cannot form clear winning edges.
 #no 3-pattern cycle was found, so we check for a 4-pattern cycle.
 for (i in 1:nrow(M)) {
   for (j in 1:nrow(M)) {
@@ -204,14 +213,12 @@ for (i in 1:nrow(M)) {
     }
   }
 }
-#result:2 -> 4 -> 7 -> 5 -> 2 
-#       4 -> 7 -> 5 -> 2 -> 4 
-#       5 -> 2 -> 4 -> 7 -> 5 
-#       7 -> 5 -> 2 -> 4 -> 7 
-M[2,4]
-M[4,7]
-M[7,5]
-M[5,2]
+#show the win probabilities for the four-pattern cycle.
+cat("001 beats 011:", round(M[2,4], 4), "\n")
+cat("011 beats 110:", round(M[4,7], 4), "\n")
+cat("110 beats 100:", round(M[7,5], 4), "\n")
+cat("100 beats 001:", round(M[5,2], 4), "\n")
+
 
 #Q5(c) Find two patterns with the same expected waiting time where one clearly beats the other
 cat("Q5(c): Expected waiting times\n")
@@ -226,7 +233,7 @@ for (i in 1:8) {
   cat(i, ewait(patterns[i, ], p = 0.5), "\n")
 }
 #result:1 14 ;2 8 ;3 10 ;4 8 ;5 8 ;6 10 ;7 8 ;8 14 
-#chose M[5, 2]
+#chose "100 beats 001": M[5, 2]
 #result:0.775 which is clearly above 0.5
 #Both patterns compete on the same sequence of tosses, so their
 #occurrences are dependent rather than independent.
