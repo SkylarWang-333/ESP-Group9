@@ -11,11 +11,43 @@
 #  With this code we want to simulate throwing a coin with probability p.
 #  Two players each pick a pattern of k outcomes and the coin is tossed,
 #  the player with the first patter to appear wins.
+#
+#  We would assume that patterns with the same expected waiting time
+#  should be evenly matched, but this is false. Because both patterns are
+#  searched for in the same sequence, their occurrences are dependent: a
+#  pattern whose beginning overlaps the end of its opponent, like 00 ends 
+#  in 00 and 001 starts with 00.
+#  for k = 3 every pattern has a reply
+#  that beats it, so the second player always has the advantage.
+#
+# What the script does
+#   Q1  firsthit()  - position at which a pattern first completes in a toss stream.
+#   Q2  duel()      - simulates one duel and reports the winner and its length.
+#   Q3  pwin()      - Monte Carlo estimate of P(a appears before b).
+#   Q4  ewait()     - exact expected waiting time for a pattern, using the
+#                     overlap (prefix = suffix) formula, checked against a
+#                     Monte Carlo estimate mc_ewait(), including for p = 0.7.
+#   Q5  pmat()      - matrix of win probabilities for all 2^k patterns, used to
+#                     find (a) the best reply to each pattern, (b) evenly
+#                     matched pairs and a nontransitive cycle, and (c) two
+#                     patterns with equal expected waits where one clearly
+#                     beats the other.
 
+
+# AI use: The code and logic was first understood and attempted without AI.
+# we used AI to help write and debug parts of the code, and
+# debug errors.
+# We reviewed, tested and understood all code
+# before submission.
+
+
+set.seed(111)   # makes the simulation results reproducible
 
 # Q1
-# function returns position at which pattern a first appears in toss stream x,
-# returns the last position of the first matching k-window, or NA if we have no match.
+# function returns position at which pattern a first appears in toss 
+# stream x, returns the last position of the first matching k-window, 
+# or NA if we have no match.
+
 firsthit <- function(x,a){
   k <- length(a)
   n <- length(x)
@@ -33,8 +65,9 @@ firsthit <- function(x,a){
 
 # Shared function for duel and pwin.
 # Runs nreps duels between patterns a and b at once, each row of X is a duel.
-# Tosses are added in blocks of 20, only to rows where neither pattern has appeared yet.
+# Tosses added in blocks of 20, only to rows where neither pattern has appeared yet.
 # Returns a matrix with 2 columns winner (1 = a, 0 = b) and tosses for the position of the win.
+# This vectorised approach is much faster than looping over duels one at a time.
 
 sim_duels <- function(a, b, p, nreps) {
   k      <- length(a)
@@ -68,7 +101,8 @@ sim_duels <- function(a, b, p, nreps) {
 #Q2
 # simulates one duel between patterns a and b on a shared coin stream.
 # Uses sim_duels with one stream of tosses.
-# Returns c(winner, tosses): winner 1 for a 0 if b, and the number of tosses the duel took.
+# Returns c(winner, tosses): winner 1 for a 0 if b, and the number of 
+# tosses the duel took.
 
 duel <- function(a, b, p = 0.5) {
   results <- sim_duels(a, b, p, nreps = 1)   # table with one row
@@ -86,9 +120,10 @@ pwin <- function(a, b, p = 0.5, nreps = 10000) {
   return(mean(wins))                         # proportion of 1s
 }
 
-#Q4 and Q5: function definitions
  
-  #Q4 writing function ewait(a,p=0.5)
+#Q4 writing function ewait(a,p=0.5)
+# Find expected waiting time until pattern a first appears.
+
 ewait <- function(a,p=0.5){
   k <- length(a)
   expected_wait <- 0
@@ -103,7 +138,8 @@ ewait <- function(a,p=0.5){
   return(expected_wait)
 }
 
-  # Monte Carlo estimation
+  # Monte Carlo estimation toss in blocks of 10 until the pattern appears,
+  # record the waiting time, and average over nreps runs.
 mc_ewait <- function(a,p=0.5,nreps=10000){
   
   waits <- replicate(nreps,{
@@ -119,7 +155,10 @@ mc_ewait <- function(a,p=0.5,nreps=10000){
   return(mean(waits))
 }
 
-  #Q5 writing function pmat(k,p=0.5,nrep=10000)
+#Q5 writing function pmat(k,p=0.5,nrep=10000)
+# Find the estimated probability that pattern i
+# beats pattern j. The diagonal is NA (a pattern can't duel itself).
+
 pmat <- function(k, p = 0.5, nreps = 10000){
   n_patterns <- 2^k
   # Generate all binary patterns
@@ -168,6 +207,7 @@ cat("Exact:", ewait(c(1,0,1), p=0.7),
 
 
 #Q5(a): Best reply for each pattern
+# The best reply to pattern j is the row i that max M[i, j].
 cat("Q5(a):Pattern index  Best reply index  Win probability\n")
 M <- pmat(k = 3, p = 0.5, nreps = 10000)
 for (j in 1:ncol(M)){
@@ -234,7 +274,7 @@ for (i in 1:8) {
 }
 #result:1 14 ;2 8 ;3 10 ;4 8 ;5 8 ;6 10 ;7 8 ;8 14 
 #chose "100 beats 001": M[5, 2]
-#result:0.775 which is clearly above 0.5
+#result:0.7523 which is clearly above 0.5
 #Both patterns compete on the same sequence of tosses, so their
 #occurrences are dependent rather than independent.
 
@@ -264,7 +304,7 @@ cat("Q6: Duel lengths\n")
 cat("Mean:", mean(duel_times), "Median:", med, "\n")
 #according to the graph
 #the distribution is right-skewed, with most duels ending after a few tosses.
-#the median is 5, while the mean is about 6.58 due to some longer duels.
+#the median is 5, while the mean is about 6.52 due to some longer duels.
 
 
 #repeat pwin 50 times and see how the estimated win probability changes.
@@ -289,7 +329,7 @@ cat("Mean:", round(ref, 4), "\n")
 cat("SD:", round(sd(estimates), 4), "\n")
 cat("Range:", round(range(estimates), 4), "\n")
 #the best reply to 111 is 011
-#the 50 estimates are centred around 0.874, with a standard deviation of 0.0082.
+#the 50 estimates are centred around 0.877, with a standard deviation of 0.0076.
 #the small variation suggests that the estimated win probability is fairly stable.
 
 
@@ -359,11 +399,11 @@ for (j in 1:(length(cycle)-1)) {
     cat("No cycle of length 3 or 4 found above 0.55.\n")
   }
 }
-#we can see that coin bias changes the best replies and their win probabilities.
-#at p=0.25 and p=0.7, three-pattern non-transitive cycles were found.
-#the patterns in these cycles differ, showing that non-transitivity remains under coin bias.
+# we can see that coin bias changes the best replies and their win probabilities.
+# at p=0.25 and p=0.7, three-pattern non-transitive cycles were found.
+# the patterns in these cycles differ, showing that non-transitivity remains under coin bias.
 
-#summary
-#patterns with the same expected waiting time can have very different win probabilities.
-#the patterns compete on the same coin stream, so their first-hit times are dependent.
-#therefore, ranking patterns by their isolated waiting times can be misleading.
+# summary
+# patterns with the same expected waiting time can have very different win probabilities.
+# the patterns compete on the same coin stream, so their first-hit times are dependent.
+# therefore, ranking patterns by their isolated waiting times can be misleading.
