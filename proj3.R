@@ -203,8 +203,7 @@ for(i in 1:n){
 max(abs(hess_fd-poission_lasso_hess(beta_test, y)))
 
 # retest at a point with non-zero changes so the penalty terms are
-# exercised too. a fixed vector is used so no random draws are consumed
-# and the results stay reproducible.
+# exercised too. 
 beta_test2 <- c(log(mean(y)), 0.3*sin(1:(n-1)))
 
 grad_fd2 <- numeric(n)
@@ -230,6 +229,7 @@ for(i in 1:n){
 }
 # largest hessian difference is small next to the entries (hundreds/1000s)
 max(abs(hess_fd2-poission_lasso_hess(beta_test2, y)))
+
 
 #STEP 3
 #fit the poisson changepoint model using bfgs
