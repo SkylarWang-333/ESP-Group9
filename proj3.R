@@ -420,3 +420,133 @@ legend("top", ncol=2, bty="n", cex=0.85,
 # the fitted levels (9.79, 3.10, 6.64) are also pulled towards the
 # overall mean compared with the truth (10, 2, 7), because the penalty
 # is shrinking every change towards zero.
+
+
+#STEP 6:Parametric Bootstrap
+#assess uncertainty in the fitted mean function
+set.seed(2026)
+B <- 200
+
+#store the fitted mean from each bootstrap sample
+mu_boot <- matrix(NA_real_, nrow = n, ncol = B)
+
+#simulate and refit the model for each bootstrap sample
+
+for(b in 1:B){
+  #parametric resampling
+  #generate new poisson observations using the fitted mean
+  y_sim <- rpois(n, lambda = mu_best)
+  #refit the model using the same penalty parameter
+  fit_sim <- fit_lasso(beta_best, y_sim, lambda_best)
+  #check convergence before storing the result
+  if(fit_sim$conv != 0){
+    stop("Bootstrap optimisation didn't converge")
+  }
+  #calculate and store the fitted mean function
+  mu_boot[,b] <- exp(cumsum(fit_sim$beta))
+}
+
+#calculate the average fitted mean across bootstrap samples
+mu_bar <- rowMeans(mu_boot)
+
+#compare the bootstrap average with the original fitted mean
+
+#save the current graphical settings
+old_par <- par(no.readonly=TRUE)
+
+#create two separate plotting areas:
+#the upper one for the main plot, the lower one for the legend
+layout(matrix(c(1, 2), nrow=2), heights=c(5, 1))
+
+#main plot
+par(mar=c(4, 4, 3, 2))
+
+plot(time, y,
+     pch=16, col="grey",
+     xlab="Time", ylab="Poisson count",
+     ylim=range(c(0, y, mu_true, mu_best, mu_bar), finite=TRUE),
+     main="Bootstrap mean comparison")
+
+#add the true, fitted and bootstrap mean functions
+lines(time, mu_true, type="s", col="black", lwd=2)
+lines(time, mu_best, type="s", col="red", lwd=2)
+lines(time, mu_bar, type="s", col="blue", lwd=2)
+
+#separate legend area
+par(mar=c(0, 0, 0, 0))
+plot.new()
+
+legend("center",
+       legend=c("Observed counts", "True mean",
+                "Fitted mean", "Bootstrap mean"),
+       col=c("grey", "black", "red", "blue"),
+       pch=c(16, NA, NA, NA),
+       lty=c(0, 1, 1, 1),
+       ncol=2,
+       cex=0.8,
+       bty="n")
+
+#restore the original graphical settings
+par(old_par)
+#estimate bootstrap bias and correct the fitted mean
+bias_boot <- mu_bar - mu_best
+mu_bc <- mu_best - bias_boot
+
+#calculate pointwise 95% bootstrap percentile intervals
+qL <- apply(mu_boot, 1, quantile, probs=0.025)
+qU <- apply(mu_boot, 1, quantile, probs=0.975)
+
+#bias-correct the 95% confidence interval limits
+qL_bc <- 2*mu_best - qU
+qU_bc <- 2*mu_best - qL
+
+#STEP 7: Final plot
+#show the observations, fitted means and confidence intervals
+
+#save the current graphical settings
+old_par <- par(no.readonly=TRUE)
+
+#reate two separate plotting areas
+layout(matrix(c(1, 2), nrow=2), heights=c(5, 1))
+
+#set the range of the vertical axis
+y_limits <- range(c(0, y, mu_true, mu_best,
+                    mu_bc, qL_bc, qU_bc), finite=TRUE)
+
+#plot the original observations
+par(mar=c(4, 4, 3, 2))
+plot(time, y,
+     pch=16, col="grey",
+     xlab="Time", ylab="Poisson count",
+     ylim=y_limits,
+     main="Poisson changepoint estimation with 95% confidence intervals")
+
+#add the true and fitted mean functions
+lines(time, mu_true, type="s", col="black", lwd=2)
+lines(time, mu_best, type="s", col="red", lwd=2)
+
+#add the bias-corrected mean function
+lines(time, mu_bc, type="s", col="blue", lwd=2)
+
+#add the bias-corrected 95% confidence limits
+lines(time, qL_bc, type="s", col="darkgreen", lty=2)
+lines(time, qU_bc, type="s", col="darkgreen", lty=2)
+
+#create a separate area for the legend
+par(mar=c(0, 0, 0, 0))
+plot.new()
+
+#add the legend 
+legend("center",
+       legend=c("Observed counts", "True mean",
+                "Fitted mean", "Bias-corrected mean",
+                "95% confidence limits"),
+       col=c("grey", "black", "red", "blue", "darkgreen"),
+       pch=c(16, NA, NA, NA, NA),
+       lty=c(0, 1, 1, 1, 2),
+       ncol=3,
+       cex=0.8,
+       bty="n")
+
+par(old_par)
+
