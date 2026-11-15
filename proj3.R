@@ -202,7 +202,34 @@ for(i in 1:n){
 #report the largest difference between the two hessians
 max(abs(hess_fd-poission_lasso_hess(beta_test, y)))
 
+# retest at a point with non-zero changes so the penalty terms are
+# exercised too. a fixed vector is used so no random draws are consumed
+# and the results stay reproducible.
+beta_test2 <- c(log(mean(y)), 0.3*sin(1:(n-1)))
 
+grad_fd2 <- numeric(n)
+for(i in 1:n){
+  beta1 <- beta_test2
+  beta2 <- beta_test2
+  beta1[i] <- beta1[i]+step
+  beta2[i] <- beta2[i]-step
+  grad_fd2[i] <- (poission_lasso_objective(beta1, y) -
+                    poission_lasso_objective(beta2, y))/(2*step)
+}
+# largest gradient difference at a non-zero beta (should be ~0)
+max(abs(grad_fd2-poission_lasso_grad(beta_test2, y)))
+
+hess_fd2 <- matrix(0, n, n)
+for(i in 1:n){
+  beta1 <- beta_test2
+  beta2 <- beta_test2
+  beta1[i] <- beta1[i]+step
+  beta2[i] <- beta2[i]-step
+  hess_fd2[i,] <- (poission_lasso_grad(beta1, y) -
+                     poission_lasso_grad(beta2, y))/(2*step)
+}
+# largest hessian difference is small next to the entries (hundreds/1000s)
+max(abs(hess_fd2-poission_lasso_hess(beta_test2, y)))
 
 #STEP 3
 #fit the poisson changepoint model using bfgs
