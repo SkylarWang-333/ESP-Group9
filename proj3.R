@@ -429,6 +429,13 @@ legend("top", ncol=2, bty="n", cex=0.85,
 
 
 #STEP 6:Parametric Bootstrap
+#we assess uncertainty in the estimated Poisson mean function by generating
+#200 bootstrap samples from the fitted model in Step 5. 
+#each sample is refitted
+#using the same optimal penalty parameter. The resulting estimates are used
+#to examine bootstrap bias, calculate the bias-corrected mean function,
+#and construct pointwise 95% bias-corrected confidence intervals.
+
 #assess uncertainty in the fitted mean function
 set.seed(2026)
 B <- 200
@@ -462,35 +469,35 @@ old_par <- par(no.readonly=TRUE)
 
 #create two separate plotting areas:
 #the upper one for the main plot, the lower one for the legend
-layout(matrix(c(1, 2), nrow=2), heights=c(5, 1))
+layout(matrix(c(1, 2), nrow = 2), heights = c(5, 1))
 
 #main plot
-par(mar=c(4, 4, 3, 2))
+par(mar = c(4, 4, 3, 2))
 
 plot(time, y,
-     pch=16, col="grey",
-     xlab="Time", ylab="Poisson count",
-     ylim=range(c(0, y, mu_true, mu_best, mu_bar), finite=TRUE),
-     main="Bootstrap mean comparison")
+     pch = 16, col = "grey",
+     xlab = "Time", ylab = "Poisson count",
+     ylim = range(c(0, y, mu_true, mu_best, mu_bar), finite = TRUE),
+     main = "Bootstrap mean comparison")
 
 #add the true, fitted and bootstrap mean functions
-lines(time, mu_true, type="s", col="black", lwd=2)
-lines(time, mu_best, type="s", col="red", lwd=2)
-lines(time, mu_bar, type="s", col="blue", lwd=2)
+lines(time, mu_true, type = "s", col = "black", lwd = 2)
+lines(time, mu_best, type = "s", col = "red", lwd = 2)
+lines(time, mu_bar, type = "s", col = "blue", lwd = 2)
 
 #separate legend area
-par(mar=c(0, 0, 0, 0))
+par(mar = c(0, 0, 0, 0))
 plot.new()
 
 legend("center",
-       legend=c("Observed counts", "True mean",
+       legend = c("Observed counts", "True mean",
                 "Fitted mean", "Bootstrap mean"),
-       col=c("grey", "black", "red", "blue"),
-       pch=c(16, NA, NA, NA),
-       lty=c(0, 1, 1, 1),
-       ncol=2,
-       cex=0.8,
-       bty="n")
+       col = c("grey", "black", "red", "blue"),
+       pch = c(16, NA, NA, NA),
+       lty = c(0, 1, 1, 1),
+       ncol = 2,
+       cex = 0.8,
+       bty = "n")
 
 #restore the original graphical settings
 par(old_par)
@@ -499,60 +506,63 @@ bias_boot <- mu_bar - mu_best
 mu_bc <- mu_best - bias_boot
 
 #calculate pointwise 95% bootstrap percentile intervals
-qL <- apply(mu_boot, 1, quantile, probs=0.025)
-qU <- apply(mu_boot, 1, quantile, probs=0.975)
+qL <- apply(mu_boot, 1, quantile, probs = 0.025)
+qU <- apply(mu_boot, 1, quantile, probs = 0.975)
 
 #bias-correct the 95% confidence interval limits
 qL_bc <- 2*mu_best - qU
 qU_bc <- 2*mu_best - qL
 
 #STEP 7: Final plot
-#show the observations, fitted means and confidence intervals
+#We plot the observed counts, true mean, fitted mean, and bias-corrected
+#mean function together with the 95% bias-corrected confidence limits.
+#Step curves are used to illustrate changes in the Poisson mean over time.
+#A separate legend panel is included to keep the plot clear and readable.
 
 #save the current graphical settings
-old_par <- par(no.readonly=TRUE)
+old_par <- par(no.readonly = TRUE)
 
 #create two separate plotting areas
-layout(matrix(c(1, 2), nrow=2), heights=c(5, 1))
+layout(matrix(c(1, 2), nrow = 2), heights = c(5, 1))
 
 #set the range of the vertical axis
 y_limits <- range(c(0, y, mu_true, mu_best,
-                    mu_bc, qL_bc, qU_bc), finite=TRUE)
+                    mu_bc, qL_bc, qU_bc), finite = TRUE)
 
 #plot the original observations
-par(mar=c(4, 4, 3, 2))
+par(mar = c(4, 4, 3, 2))
 plot(time, y,
-     pch=16, col="grey",
-     xlab="Time", ylab="Poisson count",
-     ylim=y_limits,
+     pch = 16, col = "grey",
+     xlab = "Time", ylab = "Poisson count",
+     ylim = y_limits,
      main="Poisson changepoint estimation with 95% confidence intervals")
 
 #add the true and fitted mean functions
-lines(time, mu_true, type="s", col="black", lwd=2)
-lines(time, mu_best, type="s", col="red", lwd=2)
+lines(time, mu_true, type = "s", col = "black", lwd = 2)
+lines(time, mu_best, type = "s", col = "red", lwd = 2)
 
 #add the bias-corrected mean function
-lines(time, mu_bc, type="s", col="blue", lwd=2)
+lines(time, mu_bc, type = "s", col="blue", lwd = 2)
 
 #add the bias-corrected 95% confidence limits
-lines(time, qL_bc, type="s", col="darkgreen", lty=2)
-lines(time, qU_bc, type="s", col="darkgreen", lty=2)
+lines(time, qL_bc, type = "s", col = "darkgreen", lty = 2)
+lines(time, qU_bc, type = "s", col = "darkgreen", lty = 2)
 
 #create a separate area for the legend
-par(mar=c(0, 0, 0, 0))
+par(mar = c(0, 0, 0, 0))
 plot.new()
 
 #add the legend 
 legend("center",
-       legend=c("Observed counts", "True mean",
-                "Fitted mean", "Bias-corrected mean",
+       legend = c("Observed counts", "True mean",
+                "Fitted mean","Bias-corrected mean",
                 "95% confidence limits"),
-       col=c("grey", "black", "red", "blue", "darkgreen"),
-       pch=c(16, NA, NA, NA, NA),
-       lty=c(0, 1, 1, 1, 2),
-       ncol=3,
-       cex=0.8,
-       bty="n")
+       col = c("grey", "black", "red", "blue", "darkgreen"),
+       pch = c(16, NA, NA, NA, NA),
+       lty = c(0, 1, 1, 1, 2),
+       ncol = 3,
+       cex = 0.8,
+       bty = "n")
 
 par(old_par)
 
