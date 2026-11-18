@@ -286,7 +286,8 @@ legend("topright",
 # the time varying trend in the data: high up to ~30, low from ~30 to ~70, then
 # medium, which confirms the model and optimiser are working.
 
-# STEP 4: 
+# STEP 4
+
 # choosing the penalty lambda by mBIC
 # lambda = 1 in step 3 was arbitrary, but lambda sets the price of every
 # jump and it decides how many changepoints the model finds. We choose it
@@ -513,11 +514,22 @@ qU <- apply(mu_boot, 1, quantile, probs = 0.975)
 qL_bc <- 2*mu_best - qU
 qU_bc <- 2*mu_best - qL
 
-#STEP 7: Final plot
-#We plot the observed counts, true mean, fitted mean, and bias-corrected
-#mean function together with the 95% bias-corrected confidence limits.
-#Step curves are used to illustrate changes in the Poisson mean over time.
-#A separate legend panel is included to keep the plot clear and readable.
+# we notice from the plot:
+# the bootstrap mean (blue) sits further from the true mean than the
+# fitted mean (red), its segment levels are about 9.0, 4.2, 6.0 and
+# the truth 10, 2, 7, whereas the fit was 9.8, 3.2, 6.6. This is bias
+# compounding: mu_best is shrunk towards the overall mean, and
+# simulating from it then refitting shrinks it again, so mu_bar is
+# also biased the same but more strongly. the correction
+# mu_bc = 2*mu_best - mu_bar reflects mu_bar back across mu_best,
+# pushing the levels back towards the truth.
+
+#STEP 7
+
+# We plot the observed counts, true mean, fitted mean, and bias-corrected
+# mean function together with the 95% bias-corrected confidence limits.
+# Step curves are used to illustrate changes in the Poisson mean over time.
+# A separate legend panel is included to keep the plot clear and readable.
 
 #save the current graphical settings
 old_par <- par(no.readonly = TRUE)
@@ -565,4 +577,12 @@ legend("center",
        bty = "n")
 
 par(old_par)
+
+# Finally we notice:
+# the bias-corrected mean (blue) is closer to the true levels than the
+# fitted mean confirming the correction helps. the 95% bands are narrow
+# on the flat segments and widen sharply near the changepoints at about
+# 30 and 70, where the change location is most uncertain. the lower band
+# dips slightly below zero near time 30, as the bootstrap interval is
+# not constrained to the valid range of a poisson mean.
 
