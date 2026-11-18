@@ -9,27 +9,32 @@
 
 # Github URL：https://github.com/SkylarWang-333/ESP-Group9.git
 
+# Changepoint estimation for Poisson count data via a smoothed LASSO
+# penalty.
+#
+# Description:
+#   The mean of a Poisson count series is modeled as a baseline level
+#   plus a change at each time step, on the log scale. A smoothed LASSO
+#   penalty shrinks most changes towards zero, so that only a few
+#   genuine changepoints remain. The penalty strength is chosen by a
+#   modified Bayesian Information Criterion (mBIC), and uncertainty in
+#   the fitted mean is assessed by a parametric bootstrap with bias
+#   correction.
+#
+# Outline:
+#   1. Simulate 100 Poisson counts with two known changepoints.
+#   2. Define the penalised objective, gradient and Hessian, and verify
+#      the derivatives by finite differencing.
+#   3. Fit the model by BFGS at lambda = 1 as a sanity check.
+#   4. Select lambda on a grid by minimising the mBIC, counting
+#      changepoints through the effective degrees of freedom.
+#   5. Refit at the selected lambda; estimate the number of
+#      changepoints and locate them at the largest changes.
+#   6. Quantify uncertainty by parametric bootstrap (B = 200): refit
+#      resampled data, then bias-correct the mean and its 95% bands.
+#   7. Plot the data, the true, fitted and bias-corrected means, and
+#      the 95% bias-corrected confidence limits.
 
-## Purpose of this script:
-# estimate changepoints in poisson count data using a smoothed lasso
-# penalty. the mean count is modelled as a baseline plus a change at
-# each time step, on the log scale; the penalty shrinks most changes
-# towards zero to help identify likely changepoints
-
-# What the script does:
-# 1. simulate 100 poisson counts with two known changepoints
-# 2. define the penalised objective, its gradient and hessian, and
-#    check the derivatives by finite differencing
-# 3. fit the model by bfgs at lambda = 1 and compare with the truth
-# 4. choose lambda by minimising the modified bic over a grid, using
-#    the effective degrees of freedom to count changepoints
-# 5. refit at the best lambda, estimate the number of changepoints
-#    and locate them at the largest changes, and plot the fit
-# 6. assess uncertainty by parametric bootstrap: resimulate from the
-#    fitted mean, refit B = 200 times, and bias-correct the mean and
-#    its 95% confidence bands
-# 7. produce a final plot of the data, true mean, fitted mean, the
-#    bias-corrected mean and its 95% confidence limits
 
 #STEP 1
 
